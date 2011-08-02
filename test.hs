@@ -1,3 +1,4 @@
+-- test comment
 doubleMe x = x + x
 
 doubleUs x y = doubleMe x + doubleMe y
@@ -95,14 +96,18 @@ initials firstname lastname = [f] ++ ". " ++ [l] ++ "."
 initials' :: String -> String -> String
 initials' (f:_)(l:_) = [f] ++ ". " ++ [l] ++ "."
 
+------
 -- let
+------
 cylinderSurface :: (RealFloat a) => a -> a -> a
 cylinderSurface r h =
   let sideArea = 2 * pi * r * h
       topArea = pi * r ^ 2
   in sideArea + 2 * topArea
 
+------------
 -- recursion
+------------
 maximum' :: (Ord a) => [a] -> a
 maximum' [] = error "Maximum of empty list"
 maximum' [x] = x
@@ -121,3 +126,73 @@ replicate' n x
   | n <= 0    = []
   | otherwise = x:replicate' (n-1) x
   
+take' :: (Num i, Ord i) => i -> [a] -> [a]
+take' n _
+  | n <= 0     = []
+take' _ []     = []
+take' n (x:xs) = x : take' (n-1) xs
+
+reverse' :: [a] -> [a]
+reverse' [] = []
+reverse' (x:xs) = reverse' xs ++ [x]
+
+-- produces infinite list (must use take: take 5 (repeat' 3) )
+repeat' :: a -> [a]
+repeat' x = x:repeat' x
+
+zip' :: [a] -> [b] -> [(a,b)]
+zip' _ [] = []
+zip' [] _ = []
+zip' (x:xs) (y:ys) = (x,y):zip' xs ys
+
+elem' :: (Eq a) => a -> [a] -> Bool
+elem' a [] = False
+elem' a(x:xs)
+  | a == x    = True
+  | otherwise = a `elem'` xs
+  
+quicksort :: (Ord a) => [a] -> [a]  
+quicksort [] = []  
+quicksort (x:xs) =   
+    let smallerSorted = quicksort [a | a <- xs, a <= x]  
+        biggerSorted = quicksort [a | a <- xs, a > x]  
+    in  smallerSorted ++ [x] ++ biggerSorted
+    
+compareWithHundred :: (Num a, Ord a) => a -> Ordering  
+compareWithHundred x = compare 100 x
+
+compareWithHundred' :: (Num a, Ord a) => a -> Ordering  
+compareWithHundred' = compare 100
+
+divideByTen :: (Floating a) => a -> a
+divideByTen = (/10)
+
+isUpperAlphanum :: Char -> Bool  
+isUpperAlphanum = (`elem` ['A'..'Z'])  
+
+applyTwice :: (a -> a) -> a -> a
+applyTwice f x = f (f x)
+
+-- zip with a function
+-- examples:
+-- zipWith' (+) [4,2,5,6] [2,6,2,3]
+-- zipWith' max [6,3,2,1] [7,3,1,5]
+-- zipWith' (++) ["foo ", "bar ", "baz "] ["fighters", "hoppers", "aldrin"] ["foo fighters","bar hoppers","baz aldrin"]
+-- zipWith' (*) (replicate 5 2) [1..]
+-- zipWith' (zipWith' (*)) [[1,2,3],[3,5,6],[2,3,4]] [[3,2,2],[3,4,5],[5,4,3]]
+zipWith' :: (a -> b -> c) -> [a] -> [b] -> [c]  
+zipWith' _ [] _ = []  
+zipWith' _ _ [] = []  
+zipWith' f (x:xs) (y:ys) = f x y : zipWith' f xs ys
+
+-- flip' zip [1,2,3,4,5] "hello"
+-- zipWith (flip' div) [2,2..] [10,8,6,4,2]
+flip' :: (a -> b -> c) -> b -> a -> c
+flip' f y x = f x y
+
+
+filter' :: (a -> Bool) -> [a] -> [a]  
+filter' _ [] = []  
+filter' p (x:xs)   
+    | p x       = x : filter p xs
+    | otherwise = filter p xs
