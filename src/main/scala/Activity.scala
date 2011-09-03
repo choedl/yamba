@@ -6,15 +6,19 @@ import android.view.View
 import android.util.Log
 import android.os.{AsyncTask, Bundle}
 import winterwell.jtwitter.{TwitterException, Twitter}
-import android.widget.{Toast, Button, EditText}
+import android.widget.{TextView, Toast, Button, EditText}
+import android.graphics.Color
+import android.text.{Editable, TextWatcher}
 
-class StatusActivity extends Activity with OnClickListener {
+class StatusActivity extends Activity with OnClickListener with TextWatcher {
 
-  val TAG = "StatusActivity"
+  val Tag = "StatusActivity"
+  val MaxTextCount = 140
 
   var editText: EditText = null
   var updateButton: Button = null
   var twitter: Twitter = null
+  var textCount: TextView = null
 
   override def onCreate(savedInstanceState: Bundle) {
     super.onCreate(savedInstanceState)
@@ -23,8 +27,12 @@ class StatusActivity extends Activity with OnClickListener {
     // Find views
     editText = findViewById(R.id.editText).asInstanceOf[EditText]
     updateButton = findViewById(R.id.buttonUpdate).asInstanceOf[Button]
-
     updateButton.setOnClickListener(this)
+
+    textCount = findViewById(R.id.textCount).asInstanceOf[TextView]
+    textCount.setText(MaxTextCount.toString)
+    textCount.setTextColor(Color.GREEN)
+    editText.addTextChangedListener(this)
 
     twitter = new Twitter("student", "password")
     twitter.setAPIRootUrl("http://yamba.marakana.com/api")
@@ -32,7 +40,7 @@ class StatusActivity extends Activity with OnClickListener {
 
   override def onClick(v: View) {
     new PostToTwitter(sendTwitterStatusUpdate).doInBackground
-    Log.d(TAG, "onClicked")
+    Log.d(Tag, "onClicked")
   }
 
   class PostToTwitter(f: () => String) {
@@ -62,8 +70,22 @@ class StatusActivity extends Activity with OnClickListener {
       twitterStatus.text
     } catch {
       case e: Exception =>
-        Log.e(TAG, e.toString)
+        Log.e(Tag, e.toString)
         "Failed to post"
     }
   }
+
+  def afterTextChanged(statusText: Editable) {
+    val count = MaxTextCount - statusText.length
+    textCount.setText(count.toString)
+
+    textCount.setTextColor(Color.GREEN)
+
+    if (count < 10) textCount.setTextColor(Color.YELLOW)
+    if (count < 0)  textCount.setTextColor(Color.RED)
+  }
+
+
+  def beforeTextChanged(p1: CharSequence, p2: Int, p3: Int, p4: Int) {}
+  def onTextChanged(p1: CharSequence, p2: Int, p3: Int, p4: Int) {}
 }
